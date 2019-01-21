@@ -55,6 +55,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         setUpLabel()
         setUpRecognizer()
         setUpRecorder()
+        setUpRightButton()
     }
     
     func setUpRecorder()
@@ -174,6 +175,17 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         self.label = label
     }
     
+    func setUpRightButton()
+    {
+        
+        let fontSize:CGFloat = 18
+        let font:UIFont = UIFont.boldSystemFont(ofSize: fontSize)
+        let attributes: [NSAttributedString.Key : Any] = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor : UIColor.white,]
+        let item = UIBarButtonItem.init(title: "Save", style: .plain, target: self, action: #selector(ViewController.savePressed))
+        item.setTitleTextAttributes(attributes, for: UIControl.State.normal)
+        self.navigationItem.rightBarButtonItem = item;
+    }
+    
     func animateUp()
     {
         if(position == State.down)
@@ -212,6 +224,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     @objc func handleTap()
     {
+        print("tapped")
+        
         if(position == State.down)
         {
             if let player = self.player
@@ -274,6 +288,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     {
         print("DOWN");
         animateDown()
+    }
+    
+    @objc func savePressed()
+    {
+        print("Save");
+       
     }
     
 }

@@ -13,6 +13,7 @@
 		4F410D7321E153400065C38B /* Rehearsal.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4F410D7121E153400065C38B /* Rehearsal.xcdatamodeld */; };
 		4F410D7521E153410065C38B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F410D7421E153410065C38B /* Assets.xcassets */; };
 		4F410D7821E153410065C38B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F410D7621E153410065C38B /* LaunchScreen.storyboard */; };
+		4F96974821F61FCD00D56FCA /* LibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F96974621F61FCD00D56FCA /* LibraryController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		4F410D7421E153410065C38B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4F410D7721E153410065C38B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4F410D7921E153410065C38B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4F96974621F61FCD00D56FCA /* LibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 			children = (
 				4F410D6A21E153400065C38B /* AppDelegate.swift */,
 				4F410D6C21E153400065C38B /* ViewController.swift */,
+				4F96974621F61FCD00D56FCA /* LibraryController.swift */,
 				4F410D6E21E153400065C38B /* Main.storyboard */,
 				4F410D7421E153410065C38B /* Assets.xcassets */,
 				4F410D7621E153410065C38B /* LaunchScreen.storyboard */,
@@ -141,6 +144,7 @@
 				4F410D6D21E153400065C38B /* ViewController.swift in Sources */,
 				4F410D6B21E153400065C38B /* AppDelegate.swift in Sources */,
 				4F410D7321E153400065C38B /* Rehearsal.xcdatamodeld in Sources */,
+				4F96974821F61FCD00D56FCA /* LibraryController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
