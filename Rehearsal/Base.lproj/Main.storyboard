@@ -41,6 +41,9 @@
                         </connections>
                     </view>
                     <navigationItem key="navigationItem" id="aa7-eY-9JD"/>
+                    <connections>
+                        <segue destination="5fu-E9-AOe" kind="show" identifier="ToLibrary" id="pyJ-o5-Jbh"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
                 <swipeGestureRecognizer direction="up" id="P9p-1A-cft" userLabel="Up Swipe Gesture Recognizer"/>
@@ -66,7 +69,7 @@
                         <viewLayoutGuide key="safeArea" id="JCM-DJ-iMZ"/>
                     </view>
                     <connections>
-                        <outlet property="tableView" destination="oIO-4V-hc4" id="9TA-u3-24T"/>
+                        <outlet property="tableView" destination="oIO-4V-hc4" id="Fem-oq-91T"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="aAF-ih-soX" userLabel="First Responder" sceneMemberID="firstResponder"/>

@@ -34,8 +34,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     var player : AVAudioPlayer?
     var currentRecorderURL : URL?
     var currentPlayerURL : URL?
-    
-    
 
     override func viewWillAppear(_ animated: Bool) {
         
@@ -293,7 +291,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     @objc func savePressed()
     {
         print("Save");
-       
+        performSegue(withIdentifier: "ToLibrary", sender: self)
+//        let viewController = LibraryController()
+//        self.navigationController?.pushViewController(viewController, animated: true)
+
     }
     
 }

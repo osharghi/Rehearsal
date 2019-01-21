@@ -8,39 +8,56 @@
 
 import UIKit
 
-class LibraryController: UIViewController {
+class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     //UITableView
     @IBOutlet weak var tableView: UITableView!
-
+    
+    let tracks: [String] = ["Track1", "Track2", "Track3", "Track4", "Track5"]
+    let cellReuseIdentifier = "cell"
     
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
+        tableView.delegate = self
+        tableView.dataSource = self
         setUpConstraints()
-
-        // Do any additional setup after loading the view.
     }
     
     func setUpConstraints()
     {
-        let tableViewBottomAnchor = self.tableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
-        let tableViewTopAnchor = self.tableView.topAnchor.constraint(equalTo: self.view.topAnchor)
-        let tableViewWidthAnchor = self.tableView.widthAnchor.constraint(equalTo: self.view.widthAnchor)
-        let tableViewCXAnchor = self.tableView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        let tableViewBottomAnchor = tableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+        let tableViewTopAnchor = tableView.topAnchor.constraint(equalTo: self.view.topAnchor)
+        let tableViewWidthAnchor = tableView.widthAnchor.constraint(equalTo: self.view.widthAnchor)
+        let tableViewHeightAnchor = tableView.heightAnchor.constraint(equalTo: self.view.heightAnchor)
+        let tableViewCXAnchor = tableView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor)
+        NSLayoutConstraint.activate([tableViewBottomAnchor, tableViewTopAnchor, tableViewWidthAnchor, tableViewHeightAnchor, tableViewCXAnchor])
+        tableView.layoutMargins = UIEdgeInsets.zero
+        tableView.separatorInset = UIEdgeInsets.zero
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.tracks.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        NSLayoutConstraint.activate([tableViewBottomAnchor, tableViewTopAnchor, tableViewWidthAnchor, tableViewCXAnchor])
+        // create a new cell if needed or reuse an old one
+        let cell:UITableViewCell = self.tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier) as UITableViewCell!
+        
+        // set the text from the data model
+        cell.textLabel?.text = self.tracks[indexPath.row]
+        
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("You tapped cell number \(indexPath.row).")
     }
 
 
-    /*
-    // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
