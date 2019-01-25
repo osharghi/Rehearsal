@@ -239,7 +239,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             self.labelBottomAnchor.constant += 200
             UIView.animate(withDuration: 1) {
                 self.view.layoutIfNeeded()
-                self.slideView.layoutIfNeeded()
             }
             position = State.up
             startRecording()
@@ -254,7 +253,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             self.labelBottomAnchor.constant -= 200
             UIView.animate(withDuration: 1) {
                 self.view.layoutIfNeeded()
-                self.slideView.layoutIfNeeded()
             }
             position = State.down
             stopRecording(success: true)
@@ -287,14 +285,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
                 {
                     if let urlToPlay = self.currentRecorderURL
                     {
-                        do {
-                            self.currentPlayerURL = urlToPlay
-                            self.player = try AVAudioPlayer(contentsOf: urlToPlay)
-                            self.player?.play()
-                            
-                        } catch {
-                            // couldn't load file :(
-                        }
+                        play(fileURL: urlToPlay)
                     }
                     else
                     {
@@ -306,14 +297,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             {
                 if let urlToPlay = self.currentRecorderURL
                 {
-                    do {
-                        self.currentPlayerURL = urlToPlay
-                        self.player = try AVAudioPlayer(contentsOf: urlToPlay)
-                        self.player?.play()
-                        
-                    } catch {
-                        // couldn't load file :(
-                    }
+                    play(fileURL: urlToPlay)
                 }
                 else
                 {
@@ -323,15 +307,25 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         }
     }
     
+    func play(fileURL: URL)
+    {
+        do {
+            self.currentPlayerURL = fileURL
+            self.player = try AVAudioPlayer(contentsOf: fileURL)
+            self.player?.play()
+            
+        } catch {
+            // couldn't load file :(
+        }
+    }
+    
     @objc func handleUpSwipe()
     {
-        print("UP");
         animateUp()
     }
     
     @objc func handleDownSwipe()
     {
-        print("DOWN");
         animateDown()
     }
     
