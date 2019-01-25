@@ -22,7 +22,6 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
     var player : AVAudioPlayer?
     var currentRowPlaying : Int?
 
-    
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -75,7 +74,7 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell:UITableViewCell = self.tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier) as UITableViewCell!
+        let cell: UITableViewCell = self.tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier) as UITableViewCell!
         
         let recording = recordings[indexPath.row]
         cell.textLabel?.text =
@@ -104,15 +103,13 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
                     play(urlToPlay:fileURL!, currentRow: indexPath.row)
                 }
             }
-            else if(self.currentRowPlaying == indexPath.row)
+            else if self.currentRowPlaying == indexPath.row
             {
-                //Double check this situation
                 player.play()
             }
             else
             {
-                //Handle this situation. Its paused? Its new track
-                play(urlToPlay:fileURL!, currentRow: indexPath.row)
+                play(urlToPlay:fileURL!, currentRow: indexPath.row) //Is this ever called?
             }
         }
         else
@@ -131,8 +128,5 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
             // couldn't load file :(
         }
     }
-
-
-
 
 }

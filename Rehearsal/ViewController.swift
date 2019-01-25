@@ -267,8 +267,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     @objc func handleTap()
     {
-        print("tapped")
-        
         if(position == State.down)
         {
             if let player = self.player
@@ -287,10 +285,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
                     {
                         play(fileURL: urlToPlay)
                     }
-                    else
-                    {
-                        print("No file")
-                    }
                 }
             }
             else
@@ -298,10 +292,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
                 if let urlToPlay = self.currentRecorderURL
                 {
                     play(fileURL: urlToPlay)
-                }
-                else
-                {
-                    print("No File")
                 }
             }
         }
@@ -348,10 +338,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             let directoryURL = getDocumentsDirectory()
             let originPath = directoryURL.appendingPathComponent("recording.m4a")
             let recordingTitle = "Track-" + String(counter)
-            let pathTitle = recordingTitle + ".m4a"
-            let destinationPath = directoryURL.appendingPathComponent(pathTitle)
+            let destinationPath = directoryURL.appendingPathComponent(recordingTitle + ".m4a")
             try FileManager.default.moveItem(at: originPath, to: destinationPath)
-            
             let saved = saveRecording(title: recordingTitle, url: destinationPath)
             if saved != true
             {
