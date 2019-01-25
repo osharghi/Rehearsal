@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import CoreData
 
 class ViewController: UIViewController, AVAudioRecorderDelegate {
     
@@ -34,7 +35,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     var player : AVAudioPlayer?
     var currentRecorderURL : URL?
     var currentPlayerURL : URL?
-
+    
     override func viewWillAppear(_ animated: Bool) {
         
         super.viewWillAppear(animated)        
@@ -54,6 +55,54 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         setUpRecognizer()
         setUpRecorder()
         setUpRightButton()
+        checkFiles()
+    }
+    
+    override func viewDidAppear(_ animated: Bool)
+    {
+        super.viewDidAppear(animated)
+        let counter = UserDefaults.standard.integer(forKey: "Counter")
+        print(counter)
+        
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        
+        //2
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Recording")
+        
+        //3
+        var recordings: [NSManagedObject] = []
+        do {
+            recordings = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        if recordings.count > 0
+        {
+            let recording = recordings[0]
+            let title = recording.value(forKey: "title") as? String
+            print(title!)
+        }
+    }
+    
+    //Test Fuction
+    func checkFiles()
+    {
+        do{
+        let directory = getDocumentsDirectory()
+        let directoryContents = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil, options: [])
+            print(directoryContents)
+        }
+        catch {
+            print(error.localizedDescription)
+        }
     }
     
     func setUpRecorder()
@@ -116,7 +165,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     func getDocumentsDirectory() -> URL
     {
-        let paths = FileManager.default.urls(for:  .documentDirectory, in: .userDomainMask)
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
     
@@ -290,11 +339,76 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     @objc func savePressed()
     {
-        print("Save");
-        performSegue(withIdentifier: "ToLibrary", sender: self)
-//        let viewController = LibraryController()
-//        self.navigationController?.pushViewController(viewController, animated: true)
-
+        let success = prepareRecordingFile()
+        if success == true
+        {
+            performSegue(withIdentifier: "ToLibrary", sender: self)
+        }
+        else{
+            //Display error
+        }
+    }
+    
+    func prepareRecordingFile() -> Bool
+    {
+        do {
+            let counter = UserDefaults.standard.integer(forKey: "Counter")
+            let directoryURL = getDocumentsDirectory()
+            let originPath = directoryURL.appendingPathComponent("recording.m4a")
+            let recordingTitle = "Track-" + String(counter) + ".m4a"
+            let destinationPath = directoryURL.appendingPathComponent(recordingTitle)
+            try FileManager.default.moveItem(at: originPath, to: destinationPath)
+            
+            let saved = saveRecording(title: recordingTitle, url: destinationPath)
+            if saved != true
+            {
+                //Handle error
+                return false;
+            }
+            
+        } catch {
+            print(error)
+            return false
+        }
+        
+        return true
+    }
+    
+    func updateCounter()
+    {
+        var counter = UserDefaults.standard.integer(forKey: "Counter")
+        counter += 1
+        UserDefaults.standard.set(counter, forKey:"Counter")
+    }
+    
+    func saveRecording(title: String, url: URL) -> Bool
+    {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return false
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let entity = NSEntityDescription.entity(forEntityName: "Recording",
+                                       in: managedContext)!
+        
+        let recording = NSManagedObject(entity: entity, insertInto: managedContext)
+        
+        recording.setValue(title, forKey: "title")
+        recording.setValue(url.absoluteString, forKey: "url")
+        
+        do {
+            try managedContext.save()
+            print("SAVE SUCCESSFUL")
+            updateCounter()
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
+            return false
+        }
+        
+        return true
+        
     }
     
 }

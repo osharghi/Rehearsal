@@ -7,14 +7,15 @@
 //
 
 import UIKit
+import CoreData
 
 class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     //UITableView
     @IBOutlet weak var tableView: UITableView!
     
-    let tracks: [String] = ["Track1", "Track2", "Track3", "Track4", "Track5"]
     let cellReuseIdentifier = "cell"
+    var recordings: [NSManagedObject] = []
     
     override func viewDidLoad() {
         
@@ -23,6 +24,32 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
         tableView.delegate = self
         tableView.dataSource = self
         setUpConstraints()
+    }
+    
+    override func viewWillAppear(_ animated: Bool)
+    {
+        super.viewWillAppear(animated)
+        fetchData()
+    }
+    
+    func fetchData()
+    {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        //2
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Recording")
+        
+        //3
+        do {
+            recordings = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
     }
     
     func setUpConstraints()
@@ -39,16 +66,16 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.tracks.count
+        return self.recordings.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        // create a new cell if needed or reuse an old one
         let cell:UITableViewCell = self.tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier) as UITableViewCell!
         
-        // set the text from the data model
-        cell.textLabel?.text = self.tracks[indexPath.row]
+        let recording = recordings[indexPath.row]
+        cell.textLabel?.text =
+            recording.value(forKey: "title") as? String
         
         return cell
     }
