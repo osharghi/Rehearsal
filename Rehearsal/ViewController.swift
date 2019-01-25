@@ -72,11 +72,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         let managedContext =
             appDelegate.persistentContainer.viewContext
         
-        //2
         let fetchRequest =
             NSFetchRequest<NSManagedObject>(entityName: "Recording")
         
-        //3
         var recordings: [NSManagedObject] = []
         do {
             recordings = try managedContext.fetch(fetchRequest)
@@ -355,8 +353,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             let counter = UserDefaults.standard.integer(forKey: "Counter")
             let directoryURL = getDocumentsDirectory()
             let originPath = directoryURL.appendingPathComponent("recording.m4a")
-            let recordingTitle = "Track-" + String(counter) + ".m4a"
-            let destinationPath = directoryURL.appendingPathComponent(recordingTitle)
+            let recordingTitle = "Track-" + String(counter)
+            let pathTitle = recordingTitle + ".m4a"
+            let destinationPath = directoryURL.appendingPathComponent(pathTitle)
             try FileManager.default.moveItem(at: originPath, to: destinationPath)
             
             let saved = saveRecording(title: recordingTitle, url: destinationPath)

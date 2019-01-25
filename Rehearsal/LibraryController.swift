@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import AVFoundation
 
 class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -16,6 +17,11 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
     
     let cellReuseIdentifier = "cell"
     var recordings: [NSManagedObject] = []
+    
+    //AudioPlayer
+    var player : AVAudioPlayer?
+    var currentRowPlaying : Int?
+
     
     override func viewDidLoad() {
         
@@ -40,10 +46,8 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
         
         let managedContext = appDelegate.persistentContainer.viewContext
         
-        //2
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Recording")
         
-        //3
         do {
             recordings = try managedContext.fetch(fetchRequest)
         } catch let error as NSError {
@@ -81,7 +85,51 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("You tapped cell number \(indexPath.row).")
+        
+        
+        let recording = recordings[indexPath.row]
+        let urlString = recording.value(forKey: "url") as? String
+        let fileURL = URL(string: urlString!)
+        
+        if let player = self.player
+        {
+            if player.isPlaying
+            {
+                if(indexPath.row == currentRowPlaying)
+                {
+                    self.player?.pause()
+                }
+                else
+                {
+                    play(urlToPlay:fileURL!, currentRow: indexPath.row)
+                }
+            }
+            else if(self.currentRowPlaying == indexPath.row)
+            {
+                //Double check this situation
+                player.play()
+            }
+            else
+            {
+                //Handle this situation. Its paused? Its new track
+                play(urlToPlay:fileURL!, currentRow: indexPath.row)
+            }
+        }
+        else
+        {
+            play(urlToPlay:fileURL!, currentRow: indexPath.row)
+        }
+    }
+    
+    func play(urlToPlay: URL, currentRow: Int)
+    {
+        do {
+            self.currentRowPlaying = currentRow
+            self.player = try AVAudioPlayer(contentsOf: urlToPlay)
+            self.player?.play()
+        } catch {
+            // couldn't load file :(
+        }
     }
 
 
