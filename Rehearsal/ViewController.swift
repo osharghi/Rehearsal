@@ -36,6 +36,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     var currentRecorderURL : URL?
     var currentPlayerURL : URL?
     
+    //SaveButton
+    var saveButton : UIBarButtonItem?
+    
     override func viewWillAppear(_ animated: Bool) {
         
         super.viewWillAppear(animated)        
@@ -48,14 +51,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     }
 
     override func viewDidLoad() {
-        
         super.viewDidLoad()
         setUpSlideView()
         setUpLabel()
         setUpRecognizer()
         setUpRecorder()
+        setUpLeftButton()
         setUpRightButton()
-        checkFiles()
+        toggleSaveButton()
+        setUpRecordingAnimation()
+
     }
     
     override func viewDidAppear(_ animated: Bool)
@@ -88,6 +93,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             let title = recording.value(forKey: "title") as? String
             print(title!)
         }
+    }
+    
+    
+    func testDirectory()
+    {
+        let directory = getDocumentsDirectory()
+        let absolute = directory.absoluteURL
+        let relative = directory.relativePath
+        print(absolute)
+        print(relative)
     }
     
     //Test Fuction
@@ -156,6 +171,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         
         if success {
             currentRecorderURL = recorder.url
+            toggleSaveButton()
         } else {
             //doSomething
         }
@@ -220,23 +236,38 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         self.label = label
     }
     
+    func setUpLeftButton()
+    {
+        let fontSize:CGFloat = 18
+        let font:UIFont = UIFont.boldSystemFont(ofSize: fontSize)
+        let attributes: [NSAttributedString.Key : Any] = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor : UIColor.white,]
+        let item = UIBarButtonItem.init(title: "LIBRARY", style: .plain, target: self, action: #selector(ViewController.libraryPressed))
+        item.setTitleTextAttributes(attributes, for: UIControl.State.normal)
+        self.navigationItem.leftBarButtonItem = item;
+    }
+    
     func setUpRightButton()
     {
         
         let fontSize:CGFloat = 18
         let font:UIFont = UIFont.boldSystemFont(ofSize: fontSize)
-        let attributes: [NSAttributedString.Key : Any] = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor : UIColor.white,]
-        let item = UIBarButtonItem.init(title: "Save", style: .plain, target: self, action: #selector(ViewController.savePressed))
-        item.setTitleTextAttributes(attributes, for: UIControl.State.normal)
+        let attributesEnabled: [NSAttributedString.Key : Any] = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor : UIColor.white,]
+        let attributesDisabled: [NSAttributedString.Key : Any] = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor : UIColor.lightText,]
+        let item = UIBarButtonItem.init(title: "SAVE", style: .plain, target: self, action: #selector(ViewController.savePressed))
+        item.setTitleTextAttributes(attributesEnabled, for: UIControl.State.normal)
+        item.setTitleTextAttributes(attributesDisabled, for: UIControl.State.disabled)
+        
+        
         self.navigationItem.rightBarButtonItem = item;
+        self.saveButton = self.navigationItem.rightBarButtonItem
     }
     
     func animateUp()
     {
         if(position == State.down)
         {
-            self.slideViewBottomAnchor.constant -= 250
-            self.labelBottomAnchor.constant += 200
+            self.slideViewBottomAnchor.constant -= 100
+            self.labelBottomAnchor.constant += 50
             UIView.animate(withDuration: 1) {
                 self.view.layoutIfNeeded()
             }
@@ -249,8 +280,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     {
         if(position == State.up)
         {
-            self.slideViewBottomAnchor.constant += 250
-            self.labelBottomAnchor.constant -= 200
+            self.slideViewBottomAnchor.constant += 100
+            self.labelBottomAnchor.constant -= 50
             UIView.animate(withDuration: 1) {
                 self.view.layoutIfNeeded()
             }
@@ -331,6 +362,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         }
     }
     
+    @objc func libraryPressed()
+    {
+        performSegue(withIdentifier: "ToLibrary", sender: self)
+    }
+    
     func prepareRecordingFile() -> Bool
     {
         do {
@@ -338,9 +374,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             let directoryURL = getDocumentsDirectory()
             let originPath = directoryURL.appendingPathComponent("recording.m4a")
             let recordingTitle = "Track-" + String(counter)
-            let destinationPath = directoryURL.appendingPathComponent(recordingTitle + ".m4a")
+            let pathTitle = recordingTitle + ".m4a"
+            let destinationPath = directoryURL.appendingPathComponent(pathTitle)
             try FileManager.default.moveItem(at: originPath, to: destinationPath)
-            let saved = saveRecording(title: recordingTitle, url: destinationPath)
+            let saved = saveRecording(title: recordingTitle, pathComponenet: pathTitle)
+            self.currentRecorderURL = nil
             if saved != true
             {
                 //Handle error
@@ -352,6 +390,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             return false
         }
         
+        toggleSaveButton()
         return true
     }
     
@@ -362,7 +401,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         UserDefaults.standard.set(counter, forKey:"Counter")
     }
     
-    func saveRecording(title: String, url: URL) -> Bool
+    func saveRecording(title: String, pathComponenet: String) -> Bool
     {
         guard let appDelegate =
             UIApplication.shared.delegate as? AppDelegate else {
@@ -377,7 +416,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         let recording = NSManagedObject(entity: entity, insertInto: managedContext)
         
         recording.setValue(title, forKey: "title")
-        recording.setValue(url.absoluteString, forKey: "url")
+        recording.setValue(pathComponenet, forKey: "url")
         
         do {
             try managedContext.save()
@@ -390,6 +429,38 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         
         return true
         
+    }
+    
+    func toggleSaveButton()
+    {
+        if(self.currentRecorderURL == nil)
+        {
+            saveButton!.isEnabled = false
+
+        }
+        else
+        {
+            saveButton!.isEnabled = true
+        }
+    }
+    
+    func setUpRecordingAnimation()
+    {
+        let recordingLabel = UILabel()
+        recordingLabel.backgroundColor = UIColor(red: 27/255, green: 53/255, blue: 58/255, alpha: 1)
+        recordingLabel.text = "RECORDING"
+        recordingLabel.textColor = .white
+        recordingLabel.textAlignment = .center
+        recordingLabel.font = UIFont.systemFont(ofSize: 20.0)
+
+        self.view.addSubview(recordingLabel)
+        recordingLabel.translatesAutoresizingMaskIntoConstraints = false
+        let heightAnchor = recordingLabel.heightAnchor.constraint(equalToConstant: 30)
+        let wAnchor = recordingLabel.widthAnchor.constraint(equalToConstant: self.view.bounds.width)
+        let cxAnchor = recordingLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor)
+        let tAnchor = recordingLabel.topAnchor.constraint(equalTo: self.slideView.bottomAnchor, constant: 30)
+        
+        NSLayoutConstraint.activate([heightAnchor, wAnchor, cxAnchor, tAnchor])
     }
     
 }

@@ -29,6 +29,7 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
         tableView.delegate = self
         tableView.dataSource = self
         setUpConstraints()
+        setUpBackButton()
     }
     
     override func viewWillAppear(_ animated: Bool)
@@ -88,8 +89,11 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
         
         let recording = recordings[indexPath.row]
         let urlString = recording.value(forKey: "url") as? String
-        let fileURL = URL(string: urlString!)
-        
+        var documentPath = getDocumentsDirectory()
+        documentPath.appendPathComponent(urlString!)
+        let fileURL = documentPath
+//        let fileURL = URL(string: urlString!)
+                
         if let player = self.player
         {
             if player.isPlaying
@@ -100,7 +104,7 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
                 }
                 else
                 {
-                    play(urlToPlay:fileURL!, currentRow: indexPath.row)
+                    play(urlToPlay:fileURL, currentRow: indexPath.row)
                 }
             }
             else if self.currentRowPlaying == indexPath.row
@@ -109,12 +113,12 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
             }
             else
             {
-                play(urlToPlay:fileURL!, currentRow: indexPath.row) //Is this ever called?
+                play(urlToPlay:fileURL, currentRow: indexPath.row) //Is this ever called?
             }
         }
         else
         {
-            play(urlToPlay:fileURL!, currentRow: indexPath.row)
+            play(urlToPlay:fileURL, currentRow: indexPath.row)
         }
     }
     
@@ -127,6 +131,29 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
         } catch {
             // couldn't load file :(
         }
+    }
+    
+    func getDocumentsDirectory() -> URL
+    {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
+    }
+    
+    func setUpBackButton()
+    {
+        
+        let fontSize:CGFloat = 18
+        let font:UIFont = UIFont.boldSystemFont(ofSize: fontSize)
+        let attributes: [NSAttributedString.Key : Any] = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor : UIColor.white,]
+        let item = UIBarButtonItem.init(title: "BACK", style: .plain, target: self, action: #selector(LibraryController.backPressed))
+        item.setTitleTextAttributes(attributes, for: UIControl.State.normal)
+        self.navigationItem.leftBarButtonItem = item
+        
+    }
+    
+    @objc func backPressed()
+    {
+        _ = self.navigationController?.popViewController(animated: true)
     }
 
 }
