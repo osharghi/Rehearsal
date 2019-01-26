@@ -446,6 +446,19 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     func setUpRecordingAnimation()
     {
+        let recordingView = UIView()
+        recordingView.backgroundColor = UIColor(red: 27/255, green: 53/255, blue: 58/255, alpha: 1)
+
+
+        self.view.addSubview(recordingView)
+        recordingView.translatesAutoresizingMaskIntoConstraints = false
+        let recordViewHAnchor = recordingView.heightAnchor.constraint(equalToConstant: 30)
+        let recordViewWAnchor = recordingView.widthAnchor.constraint(equalToConstant: self.view.bounds.width)
+        let recordViewCXAnchor = recordingView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor)
+        let recordViewTAnchor = recordingView.topAnchor.constraint(equalTo: self.slideView.bottomAnchor, constant: 30)
+        NSLayoutConstraint.activate([recordViewHAnchor, recordViewWAnchor, recordViewCXAnchor, recordViewTAnchor])
+
+
         let recordingLabel = UILabel()
         recordingLabel.backgroundColor = UIColor(red: 27/255, green: 53/255, blue: 58/255, alpha: 1)
         recordingLabel.text = "RECORDING"
@@ -453,14 +466,24 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         recordingLabel.textAlignment = .center
         recordingLabel.font = UIFont.systemFont(ofSize: 20.0)
 
-        self.view.addSubview(recordingLabel)
+        recordingView.addSubview(recordingLabel)
         recordingLabel.translatesAutoresizingMaskIntoConstraints = false
-        let heightAnchor = recordingLabel.heightAnchor.constraint(equalToConstant: 30)
-        let wAnchor = recordingLabel.widthAnchor.constraint(equalToConstant: self.view.bounds.width)
-        let cxAnchor = recordingLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor)
-        let tAnchor = recordingLabel.topAnchor.constraint(equalTo: self.slideView.bottomAnchor, constant: 30)
+        let cxAnchor = recordingLabel.centerXAnchor.constraint(equalTo: recordingView.centerXAnchor)
+        let cyAnchor = recordingLabel.centerYAnchor.constraint(equalTo: recordingView.centerYAnchor)
+        recordingLabel.sizeToFit()
+        NSLayoutConstraint.activate([cxAnchor, cyAnchor])
         
-        NSLayoutConstraint.activate([heightAnchor, wAnchor, cxAnchor, tAnchor])
+        let circlePath = UIBezierPath(arcCenter: CGPoint(x: self.view.frame.size.width/2 - recordingLabel.frame.size.width/2 - 10, y: (recordingView.frame.origin.y+recordViewHAnchor.constant/2)), radius: CGFloat(5), startAngle: CGFloat(0), endAngle:CGFloat(Double.pi * 2), clockwise: true)
+        
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.path = circlePath.cgPath
+        shapeLayer.fillColor = UIColor.red.cgColor
+        recordingView.layer.addSublayer(shapeLayer)
+        
+        UIView.animate(withDuration: 0.75, delay: 0, options: [.repeat,.autoreverse], animations: {
+            recordingView.alpha = 0.0
+        }, completion: nil)
+        
     }
     
 }
