@@ -26,6 +26,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     //Constraints
     var slideViewBottomAnchor : NSLayoutConstraint!
     var labelBottomAnchor: NSLayoutConstraint!
+    var tapLabelCXAnchor : NSLayoutConstraint!
 
     //AudioRecorder
     var recorder : AVAudioRecorder!
@@ -38,6 +39,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     //SaveButton
     var saveButton : UIBarButtonItem?
+    
+    //TapLabel
+    var tapLabel : UILabel?
     
     override func viewWillAppear(_ animated: Bool) {
         
@@ -60,6 +64,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         setUpRightButton()
         toggleSaveButton()
         setUpRecordingAnimation()
+        setUpTapLabel()
 
     }
     
@@ -93,6 +98,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             let title = recording.value(forKey: "title") as? String
             print(title!)
         }
+        
+        togglePlayLabel()
     }
     
     
@@ -101,8 +108,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         let directory = getDocumentsDirectory()
         let absolute = directory.absoluteURL
         let relative = directory.relativePath
-        print(absolute)
-        print(relative)
     }
     
     //Test Fuction
@@ -171,7 +176,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         
         if success {
             currentRecorderURL = recorder.url
-            toggleSaveButton()
+            
         } else {
             //doSomething
         }
@@ -282,12 +287,20 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         {
             self.slideViewBottomAnchor.constant += 100
             self.labelBottomAnchor.constant -= 50
-            UIView.animate(withDuration: 1) {
+
+            UIView.animate(withDuration: 1, animations: {
                 self.view.layoutIfNeeded()
+            }) { (Bool) in
+                self.togglePlayLabel()
+                self.shake()
+                self.toggleSaveButton()
             }
+            
             position = State.down
             stopRecording(success: true)
         }
+        
+    
     }
     
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
@@ -378,7 +391,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             let destinationPath = directoryURL.appendingPathComponent(pathTitle)
             try FileManager.default.moveItem(at: originPath, to: destinationPath)
             let saved = saveRecording(title: recordingTitle, pathComponenet: pathTitle)
-            self.currentRecorderURL = nil
             if saved != true
             {
                 //Handle error
@@ -391,6 +403,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         }
         
         toggleSaveButton()
+        clearURLS()
         return true
     }
     
@@ -484,6 +497,59 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             recordingView.alpha = 0.0
         }, completion: nil)
         
+    }
+    
+    func setUpTapLabel()
+    {
+        let label = UILabel()
+        label.text = "(Tap To Play)"
+        label.textColor = .white
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 15.0)
+        
+        self.slideView.addSubview(label)
+        
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        let labelCXAnchor = label.centerXAnchor.constraint(equalTo: self.slideView.centerXAnchor)
+        let labelBottomAnchor = label.bottomAnchor.constraint(equalTo: self.slideView.bottomAnchor, constant: -50)
+        let labelWidthAnchor = label.widthAnchor.constraint(equalTo:self.slideView.widthAnchor)
+        let labelHeightAnchor = label.heightAnchor.constraint(equalToConstant:20)
+        
+        tapLabelCXAnchor = labelCXAnchor
+        
+        NSLayoutConstraint.activate([labelCXAnchor, labelBottomAnchor, labelWidthAnchor, labelHeightAnchor])
+        
+        self.tapLabel = label
+        
+    }
+    
+    func shake()
+    {
+        let animation = CABasicAnimation(keyPath: "position")
+        animation.duration = 0.15
+        animation.repeatCount = 4
+        animation.autoreverses = true
+        animation.fromValue = NSValue(cgPoint: CGPoint(x: self.tapLabel!.center.x-3, y: self.tapLabel!.center.y))
+        animation.toValue = NSValue(cgPoint: CGPoint(x: self.tapLabel!.center.x+3, y: self.tapLabel!.center.y))
+        self.tapLabel!.layer.add(animation, forKey: "position")
+    }
+    
+    func clearURLS()
+    {
+        self.currentRecorderURL = nil
+        self.currentPlayerURL = nil
+    }
+    
+    func togglePlayLabel()
+    {
+        if(self.currentRecorderURL != nil)
+        {
+            self.tapLabel?.isHidden = false;
+        }
+        else{
+            self.tapLabel?.isHidden = true;
+        }
     }
     
 }
