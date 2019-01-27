@@ -365,46 +365,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     @objc func savePressed()
     {
-        let success = prepareRecordingFile()
-        if success == true
-        {
-            performSegue(withIdentifier: "ToLibrary", sender: self)
-        }
-        else{
-            //Display error
-        }
+        let counter = UserDefaults.standard.integer(forKey: "Counter")
+        let defaultTitle = "Track-" + String(counter)
+        presentAlert(title: defaultTitle)
     }
     
     @objc func libraryPressed()
     {
         performSegue(withIdentifier: "ToLibrary", sender: self)
-    }
-    
-    func prepareRecordingFile() -> Bool
-    {
-        do {
-            let counter = UserDefaults.standard.integer(forKey: "Counter")
-            let directoryURL = getDocumentsDirectory()
-            let originPath = directoryURL.appendingPathComponent("recording.m4a")
-            let recordingTitle = "Track-" + String(counter)
-            let pathTitle = recordingTitle + ".m4a"
-            let destinationPath = directoryURL.appendingPathComponent(pathTitle)
-            try FileManager.default.moveItem(at: originPath, to: destinationPath)
-            let saved = saveRecording(title: recordingTitle, pathComponenet: pathTitle)
-            if saved != true
-            {
-                //Handle error
-                return false;
-            }
-            
-        } catch {
-            print(error)
-            return false
-        }
-        
-        toggleSaveButton()
-        clearURLS()
-        return true
     }
     
     func updateCounter()
@@ -550,6 +518,64 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         else{
             self.tapLabel?.isHidden = true;
         }
+    }
+    
+    func presentAlert(title: String)
+    {
+        var fileTitle = title
+        let alertController = UIAlertController(title: "Name Recording", message: "", preferredStyle: .alert)
+        alertController.addTextField { (textField : UITextField!) -> Void in
+            textField.placeholder = fileTitle
+        }
+        
+        let saveAction = UIAlertAction(title: "Save", style: .default, handler: { action in
+            let firstTextField = alertController.textFields![0] as UITextField
+            fileTitle = firstTextField.text!
+            
+            if (firstTextField.text?.isEmpty)!
+            {
+                self.newSave(titleToSave: title)
+            }
+            else
+            {
+                self.newSave(titleToSave: firstTextField.text!)
+            }
+        })
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: { (action : UIAlertAction!) -> Void in })
+        
+        alertController.addAction(saveAction)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+    func newSave(titleToSave: String)
+    {
+        do {
+            let counter = UserDefaults.standard.integer(forKey: "Counter")
+            let directoryURL = getDocumentsDirectory()
+            let originPath = directoryURL.appendingPathComponent("recording.m4a")
+            let defaultTitle = "Track-" + String(counter)
+            let pathTitle = defaultTitle + ".m4a"
+            //checkTitle
+            let destinationPath = directoryURL.appendingPathComponent(pathTitle)
+            try FileManager.default.moveItem(at: originPath, to: destinationPath)
+            let saved = saveRecording(title: titleToSave, pathComponenet: pathTitle)
+            if saved != true
+            {
+                //Handle error
+            }
+            
+        } catch {
+            //Handle Error
+            print(error)
+        }
+
+        toggleSaveButton()
+        clearURLS()
+        performSegue(withIdentifier: "ToLibrary", sender: self)
+        
     }
     
 }
