@@ -21,11 +21,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     //UI
     var slideView : UIView!
-    var label : UILabel!
     
     //Constraints
     var slideViewBottomAnchor : NSLayoutConstraint!
-    var labelBottomAnchor: NSLayoutConstraint!
+//    var labelBottomAnchor: NSLayoutConstraint!
     var tapLabelCXAnchor : NSLayoutConstraint!
 
     //AudioRecorder
@@ -43,6 +42,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     //TapLabel
     var tapLabel : UILabel?
     
+    //Blinking Recording View
+    var recordingView : UIView?
+    
     override func viewWillAppear(_ animated: Bool) {
         
         super.viewWillAppear(animated)        
@@ -57,7 +59,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpSlideView()
-        setUpLabel()
         setUpRecognizer()
         setUpRecorder()
         setUpLeftButton()
@@ -65,7 +66,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         toggleSaveButton()
         setUpRecordingAnimation()
         setUpTapLabel()
-
+        setUpMicImage()
     }
     
     override func viewDidAppear(_ animated: Bool)
@@ -121,6 +122,29 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         catch {
             print(error.localizedDescription)
         }
+    }
+    
+    func setUpMicImage()
+    {
+        let imageView = UIImageView()
+        
+        self.slideView.addSubview(imageView)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+
+        
+        let cxAnchor = imageView.centerXAnchor.constraint(equalTo: self.slideView.centerXAnchor)
+        let cyAnchor = imageView.centerYAnchor.constraint(equalTo: self.slideView.centerYAnchor)
+        let wAnchor = imageView.widthAnchor.constraint(equalToConstant: 125)
+        let hAnchor = imageView.heightAnchor.constraint(equalToConstant: 286)
+        
+        //width 359  125
+        //height 823 286
+        NSLayoutConstraint.activate([wAnchor, hAnchor, cxAnchor, cyAnchor])
+
+        let micImage: UIImage = UIImage(named: "BigMic.png")!
+
+        imageView.image = micImage
+        
     }
     
     func setUpRecorder()
@@ -224,23 +248,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         
     }
     
-    func setUpLabel()
-    {
-        let label = UILabel()
-        label.text = "TEST"
-        label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 20.0)
-        self.view.addSubview(label)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        
-        let labelCXAnchor = label.centerXAnchor.constraint(equalTo: self.view.centerXAnchor)
-        let labelBottomAnchor = label.bottomAnchor.constraint(equalTo:self.slideView.bottomAnchor, constant: -self.view.frame.height/2)
-        self.labelBottomAnchor = labelBottomAnchor
-        
-        NSLayoutConstraint.activate([labelCXAnchor, self.labelBottomAnchor])
-        self.label = label
-    }
-    
     func setUpLeftButton()
     {
         let fontSize:CGFloat = 18
@@ -272,7 +279,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         if(position == State.down)
         {
             self.slideViewBottomAnchor.constant -= 100
-            self.labelBottomAnchor.constant += 50
+            self.beginBlinkAnimation()
+//            self.labelBottomAnchor.constant += 50
             UIView.animate(withDuration: 1) {
                 self.view.layoutIfNeeded()
             }
@@ -286,7 +294,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         if(position == State.up)
         {
             self.slideViewBottomAnchor.constant += 100
-            self.labelBottomAnchor.constant -= 50
+//            self.labelBottomAnchor.constant -= 50
 
             UIView.animate(withDuration: 1, animations: {
                 self.view.layoutIfNeeded()
@@ -461,10 +469,18 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         shapeLayer.fillColor = UIColor.red.cgColor
         recordingView.layer.addSublayer(shapeLayer)
         
-        UIView.animate(withDuration: 0.75, delay: 0, options: [.repeat,.autoreverse], animations: {
-            recordingView.alpha = 0.0
-        }, completion: nil)
+        self.recordingView = recordingView;
         
+//        UIView.animate(withDuration: 0.75, delay: 0, options: [.repeat,.autoreverse], animations: {
+//            recordingView.alpha = 0.0
+//        }, completion: nil)
+    }
+    
+    func beginBlinkAnimation()
+    {
+        UIView.animate(withDuration: 0.75, delay: 0, options: [.repeat,.autoreverse], animations: {
+            self.recordingView!.alpha = 0.0
+        }, completion: nil)
     }
     
     func setUpTapLabel()
