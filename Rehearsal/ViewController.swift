@@ -101,6 +101,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         }
         
         togglePlayLabel()
+        
     }
     
     
@@ -302,6 +303,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
                 self.togglePlayLabel()
                 self.shake()
                 self.toggleSaveButton()
+                self.stopAnimations()
+                self.resetAlpha()
             }
             
             position = State.down
@@ -327,7 +330,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
                 {
                     player.pause()
                 }
-                else if(currentRecorderURL == currentPlayerURL)
+                else if(currentPlayerURL != nil)
                 {
                     player.play()
                 }
@@ -425,7 +428,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         if(self.currentRecorderURL == nil)
         {
             saveButton!.isEnabled = false
-
         }
         else
         {
@@ -433,11 +435,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         }
     }
     
+    func stopAnimations()
+    {
+        self.view.layer.removeAllAnimations()
+    }
+    
     func setUpRecordingAnimation()
     {
         let recordingView = UIView()
         recordingView.backgroundColor = UIColor(red: 27/255, green: 53/255, blue: 58/255, alpha: 1)
-
 
         self.view.addSubview(recordingView)
         recordingView.translatesAutoresizingMaskIntoConstraints = false
@@ -446,7 +452,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         let recordViewCXAnchor = recordingView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor)
         let recordViewTAnchor = recordingView.topAnchor.constraint(equalTo: self.slideView.bottomAnchor, constant: 30)
         NSLayoutConstraint.activate([recordViewHAnchor, recordViewWAnchor, recordViewCXAnchor, recordViewTAnchor])
-
 
         let recordingLabel = UILabel()
         recordingLabel.backgroundColor = UIColor(red: 27/255, green: 53/255, blue: 58/255, alpha: 1)
@@ -471,9 +476,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         
         self.recordingView = recordingView;
         
-//        UIView.animate(withDuration: 0.75, delay: 0, options: [.repeat,.autoreverse], animations: {
-//            recordingView.alpha = 0.0
-//        }, completion: nil)
+    }
+    
+    func resetAlpha()
+    {
+        self.recordingView?.alpha = 1
     }
     
     func beginBlinkAnimation()
@@ -590,8 +597,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
 
         toggleSaveButton()
         clearURLS()
+        togglePlayLabel()
         performSegue(withIdentifier: "ToLibrary", sender: self)
-        
     }
     
 }
