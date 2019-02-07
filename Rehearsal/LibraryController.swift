@@ -53,7 +53,6 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
-        
     }
     
     func setUpConstraints()
@@ -155,5 +154,5 @@ class LibraryController: UIViewController, UITableViewDelegate, UITableViewDataS
     {
         _ = self.navigationController?.popViewController(animated: true)
     }
-
+    
 }

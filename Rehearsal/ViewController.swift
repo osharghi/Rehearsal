@@ -104,7 +104,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         
     }
     
-    
     func testDirectory()
     {
         let directory = getDocumentsDirectory()
@@ -376,9 +375,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     @objc func savePressed()
     {
-        let counter = UserDefaults.standard.integer(forKey: "Counter")
-        let defaultTitle = "Track-" + String(counter)
-        presentAlert(title: defaultTitle)
+//        let counter = UserDefaults.standard.integer(forKey: "Counter")
+//        let defaultTitle = "Track-" + String(counter)
+//        presentAlert(title: defaultTitle)
+        
+        toggleSaveButton()
+        clearURLS()
+        togglePlayLabel()
+        performSegue(withIdentifier: "ToSongLibrary", sender: self)
     }
     
     @objc func libraryPressed()
@@ -391,36 +395,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         var counter = UserDefaults.standard.integer(forKey: "Counter")
         counter += 1
         UserDefaults.standard.set(counter, forKey:"Counter")
-    }
-    
-    func saveRecording(title: String, pathComponenet: String) -> Bool
-    {
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return false
-        }
-        
-        let managedContext = appDelegate.persistentContainer.viewContext
-        
-        let entity = NSEntityDescription.entity(forEntityName: "Recording",
-                                       in: managedContext)!
-        
-        let recording = NSManagedObject(entity: entity, insertInto: managedContext)
-        
-        recording.setValue(title, forKey: "title")
-        recording.setValue(pathComponenet, forKey: "url")
-        
-        do {
-            try managedContext.save()
-            print("SAVE SUCCESSFUL")
-            updateCounter()
-        } catch let error as NSError {
-            print("Could not save. \(error), \(error.userInfo)")
-            return false
-        }
-        
-        return true
-        
     }
     
     func toggleSaveButton()
@@ -541,6 +515,38 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         else{
             self.tapLabel?.isHidden = true;
         }
+    }
+    
+    
+    //Old unnecessary Code VVV
+    
+    func saveRecording(title: String, pathComponenet: String) -> Bool
+    {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return false
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let entity = NSEntityDescription.entity(forEntityName: "Recording",
+                                                in: managedContext)!
+        
+        let recording = NSManagedObject(entity: entity, insertInto: managedContext)
+        
+        recording.setValue(title, forKey: "title")
+        recording.setValue(pathComponenet, forKey: "url")
+        
+        do {
+            try managedContext.save()
+            print("SAVE SUCCESSFUL")
+            updateCounter()
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
+            return false
+        }
+        
+        return true
     }
     
     func presentAlert(title: String)
