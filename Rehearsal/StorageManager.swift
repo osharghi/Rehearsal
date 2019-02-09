@@ -56,11 +56,12 @@ class StorageManager
         let song = NSManagedObject(entity: entity, insertInto: managedContext)
         
         song.setValue(title, forKey: "title")
+        song.setValue(0, forKey: "index")
         
         do {
             try managedContext.save()
             print("SAVE SUCCESSFUL")
-            updateCounter()
+//            updateCounter()
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
             return false
@@ -69,9 +70,57 @@ class StorageManager
         return true
     }
     
-    func saveVersionToModel(pathComponent: String)
+    func saveVersionToModel(pathComponent: String, songTitle: String)
     {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
         
+        //Get context and set fetch predicate
+        let managedContext = appDelegate.persistentContainer.viewContext
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Song")
+        let predicate = NSPredicate(format: "title = %@", argumentArray: [songTitle])
+        fetchRequest.predicate = predicate
+        
+        do
+        {
+            //Fetch the correct song using title
+            let songArr = try managedContext.fetch(fetchRequest)
+            //Extract song from array (need to make sure this unique)
+            let song = songArr[0]
+            //Get last index of song to set version number
+            var index = song.value(forKey: "index") as! Int
+            index += 1
+            //Get set of versions associate with song
+            let versionSet = song.mutableSetValue(forKey: "versions")
+            
+            //Get version entity
+            let entity = NSEntityDescription.entity(forEntityName: "Version",
+                                                    in: managedContext)!
+            //Create new version to add
+            let version = NSManagedObject(entity: entity, insertInto: managedContext)
+            //Obtain date for new version
+            let date = getDate()
+            //Set URL path component, version number, and date
+            version.setValue(pathComponent, forKey: "url")
+            version.setValue(index, forKey: "num")
+            version.setValue(date, forKey: "date")
+            //Add to set of versions assocaited with song
+            versionSet.add(version)
+            //Update song index with new version
+            song.setValue(index, forKey: "index")
+            
+        } catch {
+            print("Failed")
+        }
+        
+        do {
+            try managedContext.save()
+            print("SAVE SUCCESSFUL")
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
+        }
     }
     
     func updateCounter()
@@ -79,6 +128,15 @@ class StorageManager
         var counter = UserDefaults.standard.integer(forKey: "Counter")
         counter += 1
         UserDefaults.standard.set(counter, forKey:"Counter")
+    }
+    
+    func getDate() -> String
+    {
+        let date : Date = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd/yyyy"
+        let todaysDate = dateFormatter.string(from: date)
+        return todaysDate
     }
     
     
