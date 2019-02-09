@@ -13,6 +13,7 @@ class SongLibraryController: UIViewController, UITableViewDelegate, UITableViewD
 
     @IBOutlet var tableView: UITableView!
     
+    let storageManager = StorageManager()
     let cellReuseIdentifier = "cell"
     var songs: [NSManagedObject] = []
     
@@ -21,14 +22,6 @@ class SongLibraryController: UIViewController, UITableViewDelegate, UITableViewD
     {
         super.viewWillAppear(animated)
         fetchData()
-        
-        if(songs.isEmpty)
-        {
-            tableView.isHidden = true;
-            addNewSong()
-            
-            
-        }
     }
     
     override func viewDidLoad() {
@@ -39,11 +32,36 @@ class SongLibraryController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.dataSource = self
         setUpConstraints()
         setUpBackButton()
+        
+        if(songs.isEmpty)
+        {
+            tableView.isHidden = true;
+            addNewSong()
+        }
     }
     
     func addNewSong()
     {
+        let alertController = UIAlertController(title: "Add New Song", message: "", preferredStyle: .alert)
+        alertController.addTextField { (textField : UITextField!) -> Void in
+            textField.placeholder = "title"
+        }
         
+        let saveAction = UIAlertAction(title: "Save", style: .default, handler: { action in
+            let firstTextField = alertController.textFields![0] as UITextField
+            
+            if (!(firstTextField.text?.isEmpty)!)
+            {
+                self.storageManager.saveVersion(title: firstTextField.text!, firstSave: true)
+            }
+        })
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: { (action : UIAlertAction!) -> Void in })
+        
+        alertController.addAction(saveAction)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
     }
     
     func setUpAddButton()

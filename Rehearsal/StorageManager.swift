@@ -11,6 +11,25 @@ import CoreData
 import UIKit
 class StorageManager
 {
+    func saveVersion(title: String, firstSave: Bool)
+    {
+        let pathComponent = saveFilePath()
+        var continueSave = true
+        if(firstSave)
+        {
+            continueSave = saveSongToModel(title: title)
+        }
+        
+        if let pathComp = pathComponent
+        {
+            if(continueSave)
+            {
+                saveVersionToModel(pathComponent: pathComp, songTitle: title)
+                updateCounter()
+            }
+        }
+    }
+    
     func saveFilePath() -> String?
     {
         var pathComponent : String?  = nil
