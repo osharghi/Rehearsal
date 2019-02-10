@@ -3,13 +3,18 @@
     <entity name="Song" representedClassName="Song" syncable="YES" codeGenerationType="class">
         <attribute name="index" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="version" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Version" inverseName="song" inverseEntity="Version" syncable="YES"/>
+        <relationship name="versions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Version" inverseName="song" inverseEntity="Version" syncable="YES"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="title"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="Version" representedClassName="Version" syncable="YES" codeGenerationType="class">
         <attribute name="date" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="num" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="url" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="song" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Song" inverseName="version" inverseEntity="Song" syncable="YES"/>
+        <relationship name="song" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Song" inverseName="versions" inverseEntity="Song" syncable="YES"/>
     </entity>
     <elements>
         <element name="Song" positionX="-63" positionY="0" width="128" height="90"/>

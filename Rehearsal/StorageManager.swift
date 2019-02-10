@@ -80,7 +80,6 @@ class StorageManager
         do {
             try managedContext.save()
             print("SAVE SUCCESSFUL")
-//            updateCounter()
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
             return false
