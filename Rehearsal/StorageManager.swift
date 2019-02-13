@@ -157,6 +157,51 @@ class StorageManager
         return todaysDate
     }
     
+    func getData() -> [SongObj]
+    {
+        var songData: [SongObj] = []
+        var songs: [NSManagedObject] = []
+
+        
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return songData
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Song")
+        
+        do {
+            
+            songs = try managedContext.fetch(fetchRequest)
+            
+            for (_, song) in songs.enumerated() {
+
+                var versions: [VersionObj] = []
+                let versionSet = song.mutableSetValue(forKey: "versions")
+                let title = song.value(forKey: "title") as! String
+                
+                for (_,version) in versionSet.enumerated(){
+                    
+                    let url = (version as! NSManagedObject).value(forKey: "url") as! String
+                    let num = (version as! NSManagedObject).value(forKey: "num") as! Int
+                    let date = (version as! NSManagedObject).value(forKey: "date") as! String
+                    
+                    let versionStruct = VersionObj(num: num, date: date, url: url, dataObj: version as! NSManagedObject)
+                    versions.append(versionStruct)
+                }
+                
+                let songStruct = SongObj(title: title, versions: versions, collapsed: true, dataObj: song)
+
+                songData.append(songStruct)
+            }
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        return songData
+    }
+    
     
     
 }

@@ -72,33 +72,31 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     override func viewDidAppear(_ animated: Bool)
     {
         super.viewDidAppear(animated)
-        let counter = UserDefaults.standard.integer(forKey: "Counter")
-        print(counter)
         
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
-        
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Recording")
-        
-        var recordings: [NSManagedObject] = []
-        do {
-            recordings = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        if recordings.count > 0
-        {
-            let recording = recordings[0]
-            let title = recording.value(forKey: "title") as? String
-            print(title!)
-        }
+//        guard let appDelegate =
+//            UIApplication.shared.delegate as? AppDelegate else {
+//                return
+//        }
+//
+//        let managedContext =
+//            appDelegate.persistentContainer.viewContext
+//
+//        let fetchRequest =
+//            NSFetchRequest<NSManagedObject>(entityName: "Recording")
+//
+//        var recordings: [NSManagedObject] = []
+//        do {
+//            recordings = try managedContext.fetch(fetchRequest)
+//        } catch let error as NSError {
+//            print("Could not fetch. \(error), \(error.userInfo)")
+//        }
+//
+//        if recordings.count > 0
+//        {
+//            let recording = recordings[0]
+//            let title = recording.value(forKey: "title") as? String
+//            print(title!)
+//        }
         
         togglePlayLabel()
         
@@ -382,12 +380,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         toggleSaveButton()
         clearURLS()
         togglePlayLabel()
-        performSegue(withIdentifier: "ToSongLibrary", sender: self)
+        performSegue(withIdentifier: "ToSaveController", sender: self)
     }
     
     @objc func libraryPressed()
     {
-        performSegue(withIdentifier: "ToLibrary", sender: self)
+        performSegue(withIdentifier: "ToSongLibraryController", sender: self)
     }
     
     func updateCounter()
@@ -604,7 +602,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         toggleSaveButton()
         clearURLS()
         togglePlayLabel()
-        performSegue(withIdentifier: "ToLibrary", sender: self)
+        performSegue(withIdentifier: "ToSongLibraryController", sender: self)
     }
     
 }
